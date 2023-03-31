@@ -82,6 +82,28 @@ function App() {
 
   //drag and drop
 
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggingElement, setDraggingElement] = useState(null);
+
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    setDraggingElement(e.target);
+    console.log("handleDragStart");
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    setDraggingElement(null);
+    console.log("handleDragEnd");
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const targetElement = e.target;
+    targetElement.appendChild(draggingElement);
+    console.log("handleDrop");
+  };
+
   return (
     <div className="max-w-6xl m-auto">
       <CreateList
@@ -94,11 +116,17 @@ function App() {
           users={users}
           onRemove={onRemove}
           moveDoing={moveDoing}
+          handleDragStart={handleDragStart}
+          handleDragEnd={handleDragEnd}
+          handleDrop={handleDrop}
         ></TodoList>
         <DoingList
           doing={doing}
           onRemove={onRemove}
           moveDone={moveDone}
+          handleDragStart={handleDragStart}
+          handleDragEnd={handleDragEnd}
+          handleDrop={handleDrop}
         ></DoingList>
         <DoneList done={done} onRemove={onRemove}></DoneList>
       </div>
