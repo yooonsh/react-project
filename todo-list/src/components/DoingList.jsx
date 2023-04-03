@@ -1,18 +1,11 @@
 import React from "react";
 
-function Doing({
-  user,
-  state,
-  onRemove,
-  moveDone,
-  handleDragStart,
-  handleDragEnd,
-}) {
+function Doing({ user, state, onRemove, handleDragStart, handleDragEnd }) {
   return (
     <li
       className="flex gap-x-3 mt-3 p-3 bg-white shadow-md border border-solid border-gray-100 rounded-md"
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      onDragStart={(e) => handleDragStart(e, state, user.id)}
+      onDragEnd={(e) => handleDragEnd(state)}
       draggable
     >
       <p className="text-gray-600">{user.username}</p>
@@ -23,13 +16,6 @@ function Doing({
       >
         🗑️
       </button>
-      <button
-        onClick={() => {
-          moveDone(user.id);
-        }}
-      >
-        👉
-      </button>
     </li>
   );
 }
@@ -37,28 +23,26 @@ function Doing({
 function DoingList({
   doing,
   onRemove,
-  moveDone,
   handleDragStart,
   handleDragEnd,
   handleDrop,
 }) {
+  const state = 2;
   return (
     <div
       className="bg-white shadow-sm p-10 rounded-2xl text-left"
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={handleDrop}
+      onDrop={(e) => handleDrop(e, state)}
     >
       <h3 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:col-span-7">
         DOING
       </h3>
-      <ul>
+      <ul className="h-full" onDragOver={(e) => e.preventDefault()}>
         {doing.map((user) => (
           <Doing
             user={user}
             key={user.id}
-            state="doing"
+            state={state}
             onRemove={onRemove}
-            moveDone={moveDone}
             handleDragStart={handleDragStart}
             handleDragEnd={handleDragEnd}
           />

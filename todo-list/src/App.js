@@ -40,68 +40,96 @@ function App() {
   };
 
   const onCreate = () => {
-    const user = {
-      id: nextId.current,
-      username,
-    };
+    let user;
+    if (!username) {
+      alert("내용을 입력해주세요.");
+    } else {
+      user = {
+        id: nextId.current,
+        username,
+      };
+      setUsers([...users, user]);
+      // 또는 setUsers(users.concat(user));
 
-    setUsers([...users, user]);
-    // 또는 setUsers(users.concat(user));
-
-    setInputs({
-      username: "",
-    });
-    nextId.current += 1;
-  };
-
-  const onRemove = (id, state) => {
-    if (state === "todo") {
-      setUsers(users.filter((user) => user.id !== id));
-    } else if (state === "doing") {
-      setDoing(doing.filter((user) => user.id !== id));
-    } else if (state === "done") {
-      setDone(done.filter((user) => user.id !== id));
+      setInputs({
+        username: "",
+      });
+      nextId.current += 1;
     }
   };
 
-  const moveDoing = (id) => {
-    setUsers(users.filter((user) => user.id !== id));
-
-    const doinguser = users.filter((user) => user.id === id);
-
-    setDoing(doing.concat(doinguser));
+  const onRemove = (id, state) => {
+    // eslint-disable-next-line default-case
+    switch (state) {
+      case 1:
+        setUsers(users.filter((user) => user.id !== id));
+        break;
+      case 2:
+        setDoing(doing.filter((user) => user.id !== id));
+        break;
+      case 3:
+        setDone(done.filter((user) => user.id !== id));
+        break;
+    }
   };
 
-  const moveDone = (id) => {
-    setDoing(doing.filter((user) => user.id !== id));
+  const moveItems = (beforeIndex, afterIndex, id) => {
+    let doneuser;
+    if (beforeIndex && afterIndex && beforeIndex !== afterIndex) {
+      // eslint-disable-next-line default-case
+      switch (beforeIndex) {
+        case 1:
+          setUsers(users.filter((user) => user.id !== id));
+          doneuser = users.filter((user) => user.id === id);
+          break;
+        case 2:
+          setDoing(doing.filter((user) => user.id !== id));
+          doneuser = doing.filter((user) => user.id === id);
+          break;
+        case 3:
+          setDone(done.filter((user) => user.id !== id));
+          doneuser = done.filter((user) => user.id === id);
+          break;
+      }
 
-    const doneuser = doing.filter((user) => user.id === id);
-
-    setDone(done.concat(doneuser));
+      // eslint-disable-next-line default-case
+      switch (afterIndex) {
+        case 1:
+          setUsers(users.concat(doneuser));
+          break;
+        case 2:
+          setDoing(doing.concat(doneuser));
+          break;
+        case 3:
+          setDone(done.concat(doneuser));
+          break;
+      }
+    }
   };
 
   //drag and drop
+  const draggingItemIndex = useRef(null);
+  const dropWrapIndex = useRef(null);
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [draggingElement, setDraggingElement] = useState(null);
-
-  const handleDragStart = (e) => {
-    setIsDragging(true);
-    setDraggingElement(e.target);
+  const handleDragStart = (e, state, id) => {
+    draggingItemIndex.current = id;
+    draggingItemIndex.state = state;
     console.log("handleDragStart");
   };
 
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    setDraggingElement(null);
+  const handleDragEnd = (state) => {
     console.log("handleDragEnd");
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e, state) => {
     e.preventDefault();
-    const targetElement = e.target;
-    targetElement.appendChild(draggingElement);
     console.log("handleDrop");
+    dropWrapIndex.state = state;
+    moveItems(
+      draggingItemIndex.state,
+      dropWrapIndex.state,
+      draggingItemIndex.current
+    );
   };
 
   return (
@@ -115,7 +143,6 @@ function App() {
         <TodoList
           users={users}
           onRemove={onRemove}
-          moveDoing={moveDoing}
           handleDragStart={handleDragStart}
           handleDragEnd={handleDragEnd}
           handleDrop={handleDrop}
@@ -123,12 +150,17 @@ function App() {
         <DoingList
           doing={doing}
           onRemove={onRemove}
-          moveDone={moveDone}
           handleDragStart={handleDragStart}
           handleDragEnd={handleDragEnd}
           handleDrop={handleDrop}
         ></DoingList>
-        <DoneList done={done} onRemove={onRemove}></DoneList>
+        <DoneList
+          done={done}
+          onRemove={onRemove}
+          handleDragStart={handleDragStart}
+          handleDragEnd={handleDragEnd}
+          handleDrop={handleDrop}
+        ></DoneList>
       </div>
     </div>
   );

@@ -1,18 +1,11 @@
 import React from "react";
 
-function Todo({
-  user,
-  state,
-  onRemove,
-  moveDoing,
-  handleDragStart,
-  handleDragEnd,
-}) {
+function Todo({ user, state, onRemove, handleDragStart, handleDragEnd }) {
   return (
     <li
       className="flex gap-x-3 mt-3 p-3 bg-white shadow-md border border-solid border-gray-100 rounded-md"
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      onDragStart={(e) => handleDragStart(e, state, user.id)}
+      onDragEnd={(e) => handleDragEnd(state)}
       draggable
     >
       <p className="text-gray-600">{user.username}</p>
@@ -24,15 +17,6 @@ function Todo({
       >
         🗑️
       </button>
-      <button
-        className=""
-        onClick={() => {
-          moveDoing(user.id);
-          console.log(user.id);
-        }}
-      >
-        👉
-      </button>
     </li>
   );
 }
@@ -40,28 +24,26 @@ function Todo({
 function TodoList({
   users,
   onRemove,
-  moveDoing,
   handleDragStart,
   handleDragEnd,
   handleDrop,
 }) {
+  const state = 1;
   return (
     <div
       className="bg-white shadow-sm p-10 rounded-2xl text-left min-h-500"
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={handleDrop}
+      onDrop={(e) => handleDrop(e, state)}
     >
       <h3 className="mb-5  text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:col-span-7">
         TO DO
       </h3>
-      <ul>
+      <ul className="h-full" onDragOver={(e) => e.preventDefault()}>
         {users.map((user) => (
           <Todo
             user={user}
             key={user.id}
-            state="todo"
+            state={state}
             onRemove={onRemove}
-            moveDoing={moveDoing}
             handleDragStart={handleDragStart}
             handleDragEnd={handleDragEnd}
           />
